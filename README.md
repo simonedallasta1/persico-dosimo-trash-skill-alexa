@@ -66,11 +66,18 @@ Beta Test → copia il link d'invito e mandalo (va aperto dal telefono).
 
 In console completa una volta **Distribution → Skill Preview** e
 **Privacy & Compliance** (i testi sono gia' nel manifest e vengono caricati
-con `aggiorna`). Serve una **privacy policy online**:
-1. compila `assets/privacy-raccolta.html` (nome ed email del titolare);
-2. pubblicala su un indirizzo pubblico;
-3. metti l'URL in `skill-package/skill.json` → `privacyPolicyUrl`
-   (al posto di `https://IL-TUO-DOMINIO/...`). Il push aggiorna la skill.
+con `aggiorna`).
+
+La privacy policy e' in `docs/privacy.html` e il manifest punta gia' a
+<https://simonedallasta1.github.io/persico-dosimo-trash-skill-alexa/privacy.html>.
+Per metterla online gratis con GitHub Pages:
+1. Settings → General → Danger Zone → **Change visibility → Public**
+   (il repository non contiene segreti: le credenziali stanno nel secret);
+2. Settings → **Pages** → Source: *Deploy from a branch* → Branch **main**,
+   cartella **/docs** → Save. Dopo un minuto il link funziona.
+
+In alternativa pubblica la pagina altrove e aggiorna `privacyPolicyUrl` in
+`skill-package/skill.json`.
 
 ---
 
@@ -78,7 +85,8 @@ con `aggiorna`). Serve una **privacy policy online**:
 ```
 lambda/                    codice della skill (Node.js)
 skill-package/             manifest, modello vocale it-IT, icone
-assets/                    icone sorgente, privacy policy
+assets/                    icone sorgente
+docs/                      privacy policy (GitHub Pages)
 scripts/                   automazione (ASK CLI)
 .github/workflows/         GitHub Actions
 .devcontainer/             ambiente Codespace con ASK CLI
