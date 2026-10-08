@@ -41,3 +41,39 @@ check_sources() {
 }
 
 smapi() { ask smapi "$@" --profile "$ASK_PROFILE"; }
+
+# Riassume lo stato della skill (manifest, modello vocale, codice hosted).
+# Stampa una riga per componente; in GitHub Actions le scrive anche come annotazioni.
+# Codice di uscita: 0 tutto ok, 1 qualcosa in corso, 2 qualcosa fallito.
+report_status() {
+  local res
+  res="$(smapi get-skill-status -s "$(skill_id)")" || die "impossibile leggere lo stato della skill"
+  echo "$res" | node -e '
+    let d=""; process.stdin.on("data",c=>d+=c).on("end",()=>{
+      let o; try { o = JSON.parse(d.slice(d.indexOf("{"))); } catch(e) { console.log("FAILED|stato|risposta non leggibile"); return; }
+      const out = [];
+      const add = (name, req) => {
+        if (!req) return;
+        const errs = (req.errors||[]).map(e=>e.message||JSON.stringify(e)).join(" ; ");
+        const warns = (req.warnings||[]).map(e=>e.message||JSON.stringify(e)).join(" ; ");
+        out.push([req.status||"?", name, errs + (warns ? " [avvisi: " + warns + "]" : "")].join("|"));
+      };
+      if (o.manifest) add("manifest", o.manifest.lastUpdateRequest);
+      for (const [loc, m] of Object.entries(o.interactionModel||{})) add("modello " + loc, m.lastUpdateRequest);
+      if (o.hostedSkillDeployment) add("codice", o.hostedSkillDeployment.lastUpdateRequest);
+      if (o.hostedSkillProvisioning) add("hosting", o.hostedSkillProvisioning.lastUpdateRequest);
+      console.log(out.join("\n"));
+    });' > "${TMPDIR:-/tmp}/skill-status.txt"
+  local rc=0 st name msg level
+  while IFS='|' read -r st name msg; do
+    [ -n "$st" ] || continue
+    echo "    $name: $st ${msg}"
+    case "$st" in
+      FAILED)      rc=2; level=error ;;
+      IN_PROGRESS) [ $rc -lt 1 ] && rc=1; level=warning ;;
+      *)           level=notice ;;
+    esac
+    if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::${level}::${name}: ${st} ${msg}"; fi
+  done < "${TMPDIR:-/tmp}/skill-status.txt"
+  return $rc
+}

@@ -52,5 +52,18 @@ if git ls-remote --exit-code --heads origin dev >/dev/null 2>&1; then
     && git merge -q --no-edit master && git push -q --no-verify origin dev || true
 fi
 
-info "Fatto. La build richiede qualche minuto (azione 'stato' per controllarla)."
+info "Attendo la build di Amazon"
+sleep 30
+rc=1
+for _ in $(seq 1 40); do
+  if report_status >/dev/null; then rc=0; else rc=$?; fi
+  [ $rc -eq 1 ] || break
+  sleep 15
+done
+report_status || true
+case $rc in
+  0) info "Fatto: build completata." ;;
+  1) die "la build e' ancora in corso dopo 10 minuti: controlla piu' tardi con l'azione 'stato'." ;;
+  *) die "Amazon ha rifiutato l'aggiornamento: vedi gli errori sopra." ;;
+esac
 echo "    Prova: \"Alexa, apri raccolta persico dosimo\""
