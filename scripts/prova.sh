@@ -3,7 +3,7 @@
 # Uso: ./scripts/prova.sh ["frase 1|frase 2|..."]
 source "$(dirname "$0")/common.sh"
 SID="$(skill_id)"
-FRASI="${1:-apri raccolta persico dosimo|chiedi a raccolta persico dosimo cosa tocca domani sera|chiedi a raccolta persico dosimo le prossime raccolte}"
+FRASI="${1:-apri rifiuti persico|chiedi a rifiuti persico cosa tocca domani sera|chiedi a rifiuti persico le prossime raccolte}"
 
 note() { echo "    $*"; if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::notice title=prova::$*"; fi; }
 

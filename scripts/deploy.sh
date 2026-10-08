@@ -99,7 +99,7 @@ if wait_build 20; then rc=0; else rc=$?; fi
 report_status || true
 case $rc in
   0) info "Fatto: skill aggiornata."
-     echo "    Prova: \"Alexa, apri raccolta persico dosimo\"" ;;
+     echo "    Prova: \"Alexa, apri rifiuti persico\"" ;;
   1) die "la build e' ancora in corso dopo 10 minuti: controlla piu' tardi con l'azione 'stato'." ;;
   *) die "Amazon ha rifiutato l'aggiornamento: vedi gli errori sopra." ;;
 esac

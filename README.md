@@ -4,10 +4,10 @@ Skill Alexa **non ufficiale** che dice e ricorda cosa esporre **la sera prima**
 della raccolta differenziata porta a porta di **Persico Dosimo (CR)**
 (Casalasca Servizi).
 
-- Nome pubblico: **Raccolta Persico Dosimo** · invocation: `raccolta persico dosimo`
+- Nome pubblico: **Raccolta Persico Dosimo** · invocation: `rifiuti persico`
 - Italiano (it-IT), solo Italia · hosting: **Alexa-hosted** (gratis, niente AWS)
 
-Frasi: "Alexa, apri raccolta persico dosimo" · "...cosa metto fuori stasera" ·
+Frasi: "Alexa, apri rifiuti persico" · "...cosa metto fuori stasera" ·
 "...cosa tocca domani sera" · "...le prossime raccolte" ·
 "...ricordamelo ogni giorno alle 19" · "...disattiva i promemoria".
 
