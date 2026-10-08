@@ -1,6 +1,9 @@
 {
   "name": "Raccolta Persico Dosimo",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
   "postCreateCommand": "npm install -g ask-cli@2 && chmod +x scripts/*.sh",
   "customizations": {
     "codespaces": { "openFiles": ["README.md"] }

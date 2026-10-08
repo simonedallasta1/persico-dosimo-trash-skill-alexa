@@ -33,14 +33,19 @@ if [ "$(tr -d ' \r\n' < skill-id 2>/dev/null || true)" != "$SID" ]; then
   git push -q || echo "    (push non riuscito: fai commit e push del file skill-id a mano)"
 fi
 
+SKILL_ID="$SID" "$PROJECT_DIR/scripts/deploy.sh"
+
 info "Salvo le credenziali Amazon come secret del repository"
+if ! command -v gh >/dev/null 2>&1; then
+  info "Installo GitHub CLI"
+  (sudo apt-get update -qq && sudo apt-get install -y -qq gh) >/dev/null \
+    || die "impossibile installare gh. Aggiungi a mano il secret ASK_CLI_CONFIG (vedi README)."
+fi
 if ! gh secret set ASK_CLI_CONFIG < "$HOME/.ask/cli_config" 2>/dev/null; then
-  echo "    Serve un'autorizzazione GitHub aggiuntiva: segui le istruzioni."
+  echo "    Serve un'autorizzazione GitHub: copia il codice mostrato e aprilo su github.com/login/device"
   env -u GITHUB_TOKEN gh auth login --hostname github.com --git-protocol https --web
   env -u GITHUB_TOKEN gh secret set ASK_CLI_CONFIG < "$HOME/.ask/cli_config"
 fi
 info "Secret ASK_CLI_CONFIG salvato."
-
-SKILL_ID="$SID" "$PROJECT_DIR/scripts/deploy.sh"
 echo
 info "Configurazione completata. D'ora in poi usa GitHub > Actions > 'Skill Alexa' > Run workflow."
