@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raccolta · Persico Dosimo</title>
+<style>
+  :root{
+    --umido:#cf3f74;
+    --plastica:#e8a90c;
+    --carta:#a9712f;
+    --vetro:#1f8aa6;
+    --secco:#5d6470;
+    --verde:#5aa330;
+
+    --ink:#1c2128;
+    --muted:#5e6672;
+    --line:#e4e2da;
+    --card:#ffffff;
+    --bg:#eef1ea;
+    --bg2:#e3e9df;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 80% at 100% 0%, var(--bg2) 0%, transparent 55%),
+      var(--bg);
+    min-height:100vh;
+    line-height:1.45;
+    padding:18px 16px 48px;
+  }
+  .wrap{max-width:520px;margin:0 auto}
+
+  header.top{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:10px;margin-bottom:18px;
+  }
+  header.top h1{
+    font-size:15px;font-weight:700;letter-spacing:.2px;
+  }
+  header.top .place{
+    font-size:12px;color:var(--muted);font-weight:600;
+    text-transform:uppercase;letter-spacing:.6px;
+  }
+
+  /* hero */
+  .hero{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:22px 20px 24px;
+    box-shadow:0 1px 0 rgba(0,0,0,.02), 0 10px 30px -18px rgba(20,30,20,.35);
+  }
+  .hero .when{
+    font-size:13px;color:var(--muted);font-weight:600;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .hero .lead{
+    font-size:26px;font-weight:800;letter-spacing:-.4px;
+    margin:6px 0 16px;line-height:1.15;
+  }
+  .chips{display:flex;flex-direction:column;gap:10px}
+  .chip{
+    display:flex;align-items:center;gap:13px;
+    padding:13px 14px;border-radius:14px;
+    background:var(--bg);
+    border:1px solid var(--line);
+  }
+  .chip .dot{
+    width:34px;height:34px;border-radius:10px;flex:0 0 auto;
+    display:grid;place-items:center;color:#fff;font-size:17px;
+  }
+  .chip .body{min-width:0}
+  .chip .name{font-weight:750;font-size:16px;letter-spacing:-.2px}
+  .chip .tip{font-size:12.5px;color:var(--muted);margin-top:1px}
+
+  .none{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 14px;border-radius:14px;background:var(--bg);
+    border:1px dashed var(--line);color:var(--muted);font-weight:600;
+  }
+  .none .big{font-size:22px}
+
+  .altnote{
+    margin-top:14px;font-size:12px;color:var(--muted);
+    display:flex;gap:7px;align-items:flex-start;
+  }
+  .altnote b{color:var(--ink);font-weight:700}
+
+  /* date controls */
+  .controls{
+    display:flex;gap:8px;align-items:center;margin:20px 0 8px;
+  }
+  .controls input[type=date]{
+    flex:1;font:inherit;font-size:14px;
+    padding:10px 12px;border-radius:11px;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);
+  }
+  .controls button{
+    font:inherit;font-weight:700;font-size:14px;
+    padding:10px 16px;border-radius:11px;cursor:pointer;
+    border:1px solid var(--ink);background:var(--ink);color:#fff;
+  }
+  .controls button:active{transform:translateY(1px)}
+
+  /* week list */
+  .section-label{
+    font-size:12px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.7px;color:var(--muted);
+    margin:26px 0 10px;
+  }
+  .week{display:flex;flex-direction:column;gap:7px}
+  .row{
+    display:flex;align-items:center;gap:12px;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:13px;padding:11px 13px;
+  }
+  .row.today{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset}
+  .row .day{
+    flex:0 0 64px;
+  }
+  .row .day .dn{font-weight:750;font-size:13.5px;text-transform:capitalize}
+  .row .day .dd{font-size:11.5px;color:var(--muted)}
+  .row .mini{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;font-weight:700;color:#fff;
+    padding:4px 9px 4px 7px;border-radius:999px;white-space:nowrap;
+  }
+  .pill .pd{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.85)}
+  .row .dash{color:var(--muted);font-size:13px}
+
+  /* rules */
+  details{
+    margin-top:24px;background:var(--card);
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  }
+  details>summary{
+    cursor:pointer;list-style:none;padding:15px 16px;
+    font-weight:700;font-size:14.5px;display:flex;
+    align-items:center;justify-content:space-between;
+  }
+  details>summary::-webkit-details-marker{display:none}
+  details>summary .caret{transition:transform .2s;color:var(--muted)}
+  details[open]>summary .caret{transform:rotate(180deg)}
+  .rules{padding:2px 16px 18px}
+  .rule{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+  .rule .dot{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:13px}
+  .rule .rb .rn{font-weight:700;font-size:14px}
+  .rule .rb .rt{font-size:12.5px;color:var(--muted)}
+
+  footer.notes{
+    margin-top:22px;font-size:12px;color:var(--muted);
+    line-height:1.55;
+  }
+  footer.notes p{margin-bottom:7px}
+  footer.notes b{color:var(--ink)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.row{animation:rise .35s ease both}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  }
+  :focus-visible{outline:2px solid var(--vetro);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Cosa metto fuori stasera?</h1>
+    <span class="place">Persico Dosimo</span>
+  </header>
+
+  <div class="hero" id="hero"></div>
+
+  <div class="controls">
+    <input type="date" id="picker" aria-label="Scegli una data">
+    <button id="todayBtn" type="button">Oggi</button>
+  </div>
+
+  <div class="section-label">Prossime sere</div>
+  <div class="week" id="week"></div>
+
+  <details>
+    <summary>Come esporre ogni rifiuto <span class="caret">▾</span></summary>
+    <div class="rules" id="rules"></div>
+  </details>
+
+  <footer class="notes">
+    <p><b>Sempre la sera prima.</b> I rifiuti vanno esposti la sera precedente il giorno di raccolta, altrimenti il ritiro non è garantito.</p>
+    <p><b>Calendario ufficiale 2026/2027.</b> Le date (verde e festività comprese) sono quelle del calendario Casalasca Servizi, da febbraio 2026 a gennaio 2027.</p>
+    <p><b>Dopo mezzanotte.</b> Tra le 00:00 e le 6:00 la pagina mostra cosa passa oggi.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // --- data model ---
+  var STREAM = {
+    umido:   {name:"Umido",         color:"var(--umido)",   icon:"🍎", tip:"Sacchetti biodegradabili — niente borsine di plastica."},
+    plastica:{name:"Plastica",      color:"var(--plastica)",icon:"🧴", tip:"Sacchi legati, plastica sfusa. No sacchi neri, no sacchetti bio."},
+    carta:   {name:"Carta",         color:"var(--carta)",   icon:"📦", tip:"In scatole di cartone o sacchetti di carta. No sacchi di plastica."},
+    vetro:   {name:"Vetro / Lattine",color:"var(--vetro)",  icon:"🍾", tip:"Negli appositi contenitori."},
+    secco:   {name:"Secco",         color:"var(--secco)",   icon:"🗑️", tip:"Solo sacchi trasparenti — i sacchi neri non vengono ritirati."},
+    verde:   {name:"Verde",         color:"var(--verde)",   icon:"🌿", tip:"Sacchi a perdere aperti (max 6). Ramaglie in fascine (max 3)."}
+  };
+
+  var GIORNI = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+  var GIORNI_SHORT = ["dom","lun","mar","mer","gio","ven","sab"];
+  var MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+
+  function mkDate(y,m,d){ return new Date(y,m,d,12,0,0,0); } // noon avoids DST edges
+  function atNoon(dt){ return mkDate(dt.getFullYear(),dt.getMonth(),dt.getDate()); }
+  function addDays(dt,n){ var d=atNoon(dt); d.setDate(d.getDate()+n); return d; }
+  function dayDiff(a,b){ return Math.round((atNoon(a)-atNoon(b))/86400000); }
+  function sameDay(a,b){ return dayDiff(a,b)===0; }
+  function isoLocal(dt){
+    var m=String(dt.getMonth()+1).padStart(2,"0");
+    var d=String(dt.getDate()).padStart(2,"0");
+    return dt.getFullYear()+"-"+m+"-"+d;
+  }
+
+  // Calendario ufficiale 2026/2027 (Casalasca Servizi): giorno di RACCOLTA -> rifiuti.
+  // Stessi dati della skill Alexa.
+  var U="umido", P="plastica", C="carta", V="vetro", S="secco", G="verde";
+  var CAL_START="2026-02-01", CAL_END="2027-01-31";
+  var CALENDARIO = {
+  '2026-02-03': [U,C,P],
+  '2026-02-06': [U,S],
+  '2026-02-10': [U,V,P],
+  '2026-02-13': [U,S],
+  '2026-02-16': [G],
+  '2026-02-17': [U,C,P],
+  '2026-02-20': [U,S],
+  '2026-02-24': [U,V,P],
+  '2026-02-27': [U,S],
+  '2026-03-03': [U,C,P],
+  '2026-03-06': [U,S],
+  '2026-03-10': [U,V,P],
+  '2026-03-13': [U,S],
+  '2026-03-16': [G],
+  '2026-03-17': [U,C,P],
+  '2026-03-20': [U,S],
+  '2026-03-24': [U,V,P],
+  '2026-03-27': [U,S],
+  '2026-03-30': [G],
+  '2026-03-31': [U,C,P],
+  '2026-04-03': [U,S],
+  '2026-04-07': [U,V,P],
+  '2026-04-10': [U,S],
+  '2026-04-13': [G],
+  '2026-04-14': [U,C,P],
+  '2026-04-17': [U,S],
+  '2026-04-20': [G],
+  '2026-04-21': [U,V,P],
+  '2026-04-24': [U,S],
+  '2026-04-27': [G],
+  '2026-04-28': [U,C,P],
+  '2026-05-01': [S],
+  '2026-05-04': [G],
+  '2026-05-05': [U,V,P],
+  '2026-05-08': [U,S],
+  '2026-05-11': [G],
+  '2026-05-12': [U,C,P],
+  '2026-05-15': [U,S],
+  '2026-05-18': [G],
+  '2026-05-19': [U,V,P],
+  '2026-05-22': [U,S],
+  '2026-05-25': [G],
+  '2026-05-26': [U,C,P],
+  '2026-05-29': [U,S],
+  '2026-06-01': [G],
+  '2026-06-02': [V,P],
+  '2026-06-05': [U,S],
+  '2026-06-08': [G],
+  '2026-06-09': [U,C,P],
+  '2026-06-12': [U,S],
+  '2026-06-15': [G],
+  '2026-06-16': [U,V,P],
+  '2026-06-19': [U,S],
+  '2026-06-22': [G],
+  '2026-06-23': [U,C,P],
+  '2026-06-26': [U,S],
+  '2026-06-30': [U,V,P],
+  '2026-07-03': [U,S],
+  '2026-07-06': [G],
+  '2026-07-07': [U,C,P],
+  '2026-07-10': [U,S],
+  '2026-07-13': [G],
+  '2026-07-14': [U,V,P],
+  '2026-07-17': [U,S],
+  '2026-07-21': [U,C,P],
+  '2026-07-24': [U,S],
+  '2026-07-27': [G],
+  '2026-07-28': [U,V,P],
+  '2026-07-31': [U,S],
+  '2026-08-03': [G],
+  '2026-08-04': [U,C,P],
+  '2026-08-07': [U,S],
+  '2026-08-10': [G],
+  '2026-08-11': [U,V,P],
+  '2026-08-14': [U,S],
+  '2026-08-18': [U,C,P],
+  '2026-08-21': [U,S],
+  '2026-08-24': [G],
+  '2026-08-25': [U,V,P],
+  '2026-08-28': [U,S],
+  '2026-09-01': [U,C,P],
+  '2026-09-04': [U,S],
+  '2026-09-07': [G],
+  '2026-09-08': [U,V,P],
+  '2026-09-11': [U,S],
+  '2026-09-14': [G],
+  '2026-09-15': [U,C,P],
+  '2026-09-18': [U,S],
+  '2026-09-22': [U,V,P],
+  '2026-09-25': [U,S],
+  '2026-09-28': [G],
+  '2026-09-29': [U,C,P],
+  '2026-10-02': [U,S],
+  '2026-10-05': [G],
+  '2026-10-06': [U,V,P],
+  '2026-10-09': [U,S],
+  '2026-10-13': [U,C,P],
+  '2026-10-16': [U,S],
+  '2026-10-19': [G],
+  '2026-10-20': [U,V,P],
+  '2026-10-23': [U,S],
+  '2026-10-26': [G],
+  '2026-10-27': [U,C,P],
+  '2026-10-30': [U,S],
+  '2026-11-02': [G],
+  '2026-11-03': [U,V,P],
+  '2026-11-06': [U,S],
+  '2026-11-10': [U,C,P],
+  '2026-11-13': [U,S],
+  '2026-11-16': [G],
+  '2026-11-17': [U,V,P],
+  '2026-11-20': [U,S],
+  '2026-11-24': [U,C,P],
+  '2026-11-27': [U,S],
+  '2026-11-30': [G],
+  '2026-12-01': [U,V,P],
+  '2026-12-04': [U,S],
+  '2026-12-07': [G],
+  '2026-12-08': [C,P],
+  '2026-12-11': [U,S],
+  '2026-12-15': [U,V,P],
+  '2026-12-18': [U,S],
+  '2026-12-21': [G],
+  '2026-12-22': [U,C,P],
+  '2026-12-26': [S],
+  '2026-12-29': [U,V,P],
+  '2027-01-02': [S],
+  '2027-01-05': [U,C,P],
+  '2027-01-08': [U,S],
+  '2027-01-12': [U,V,P],
+  '2027-01-15': [U,S],
+  '2027-01-19': [U,C,P],
+  '2027-01-22': [U,S],
+  '2027-01-26': [U,V,P],
+  '2027-01-29': [U,S],
+  };
+
+  // Schema settimanale di riserva, fuori dal periodo del calendario (senza verde).
+  var ANCHOR = mkDate(2026,5,16); // 16 giugno 2026 = vetro
+  function weeklyRule(day){
+    var wd = day.getDay();
+    if(wd===2){ var w=Math.round(dayDiff(day,ANCHOR)/7); return [U,P,(((w%2)+2)%2===0)?V:C]; }
+    if(wd===5) return [U,S];
+    return [];
+  }
+
+  // Cosa passa il giorno `day`.
+  function collectionOn(day){
+    var k = isoLocal(day);
+    if(k>=CAL_START && k<=CAL_END) return {streams: CALENDARIO[k]||[], fromCalendar:true};
+    return {streams: weeklyRule(day), fromCalendar:false};
+  }
+  // Cosa esporre la sera di `evening`: la raccolta del giorno dopo.
+  function exposeOn(evening){ return collectionOn(addDays(evening,1)); }
+
+  // Tra mezzanotte e le 6 la domanda giusta e' "cosa passa oggi".
+  function isNight(){ return new Date().getHours() < 6; }
+
+  function fmtLong(dt){
+    return GIORNI[dt.getDay()].toLowerCase()+" "+dt.getDate()+" "+MESI[dt.getMonth()];
+  }
+  function fmtShortDate(dt){ return dt.getDate()+" "+MESI[dt.getMonth()].slice(0,3); }
+
+  // --- rendering ---
+  var hero = document.getElementById("hero");
+  var weekEl = document.getElementById("week");
+  var picker = document.getElementById("picker");
+
+  function today(){ return atNoon(new Date()); }
+  var selected = today();
+
+  function chipsHtml(streams){
+    var html='<div class="chips">';
+    streams.forEach(function(k){
+      var s=STREAM[k];
+      html += '<div class="chip">'+
+        '<span class="dot" style="background:'+s.color+'">'+s.icon+'</span>'+
+        '<span class="body"><span class="name">'+s.name+'</span>'+
+        '<span class="tip">'+s.tip+'</span></span></div>';
+    });
+    return html+'</div>';
+  }
+  var FUORI = '<div class="altnote"><span>!</span><span>Il calendario caricato arriva a <b>gennaio 2027</b>: questi giorni seguono lo schema settimanale (senza verde). Verifica il nuovo calendario Casalasca.</span></div>';
+
+  function renderHero(){
+    var isToday = sameDay(selected, today());
+    var html;
+
+    // di notte (00:00-05:59) per oggi: cosa passa OGGI
+    if(isToday && isNight()){
+      var c = collectionOn(selected);
+      html = '<div class="when"><span>Adesso</span><span>·</span><span>raccolta di oggi, '+ fmtLong(selected) +'</span></div>';
+      if(c.streams.length===0){
+        html += '<div class="lead">Oggi non passa nulla</div>';
+        html += '<div class="none"><span class="big">✓</span><span>Nessuna raccolta oggi.</span></div>';
+      } else {
+        html += '<div class="lead">Oggi passa</div>' + chipsHtml(c.streams);
+        html += '<div class="altnote"><span>⏰</span><span>Se non l\'hai ancora fatto, mettili fuori adesso.</span></div>';
+      }
+      if(!c.fromCalendar) html += FUORI;
+      hero.innerHTML = html;
+      return;
+    }
+
+    var res = exposeOn(selected);
+    var whenWord = isToday ? "Stasera" : ("La sera di "+fmtLong(selected));
+    var nextDay = addDays(selected,1);
+    html = '<div class="when"><span>'+ whenWord +'</span><span>·</span><span>raccolta di '+ fmtLong(nextDay) +'</span></div>';
+
+    if(res.streams.length===0){
+      html += '<div class="lead">Niente da esporre</div>';
+      html += '<div class="none"><span class="big">✓</span><span>Puoi stare tranquillo: '+ fmtLong(nextDay) +' non c\'è raccolta.</span></div>';
+    } else {
+      html += '<div class="lead">Metti fuori</div>' + chipsHtml(res.streams);
+      // martedi': quale tra carta e vetro toccherà la settimana dopo
+      if(nextDay.getDay()===2){
+        var after = collectionOn(addDays(nextDay,7)).streams;
+        var other = after.indexOf(C)>=0 ? "Carta" : (after.indexOf(V)>=0 ? "Vetro/Lattine" : "");
+        if(other) html += '<div class="altnote"><span>↻</span><span>Il martedì <b>Carta</b> e <b>Vetro/Lattine</b> si alternano. La prossima sarà <b>'+other+'</b>.</span></div>';
+      }
+    }
+    if(!res.fromCalendar) html += FUORI;
+    hero.innerHTML = html;
+  }
+
+  function renderWeek(){
+    var html="";
+    for(var i=0;i<7;i++){
+      var d = addDays(selected,i);
+      var res = exposeOn(d);
+      var cls = sameDay(d,today()) ? "row today" : "row";
+      var mini="";
+      if(res.streams.length===0){
+        mini = '<span class="dash">—</span>';
+      } else {
+        res.streams.forEach(function(k){
+          var s=STREAM[k];
+          mini += '<span class="pill" style="background:'+s.color+'"><span class="pd"></span>'+s.name.replace(" / Lattine","")+'</span>';
+        });
+      }
+      html += '<div class="'+cls+'">'+
+        '<div class="day"><div class="dn">'+GIORNI_SHORT[d.getDay()]+'</div><div class="dd">'+fmtShortDate(d)+'</div></div>'+
+        '<div class="mini">'+mini+'</div></div>';
+    }
+    weekEl.innerHTML = html;
+  }
+
+  function renderRules(){
+    var order=["umido","plastica","carta","vetro","secco","verde"];
+    var html="";
+    order.forEach(function(k){
+      var s=STREAM[k];
+      html += '<div class="rule"><span class="dot" style="background:'+s.color+'">'+s.icon+'</span>'+
+        '<span class="rb"><span class="rn">'+s.name+'</span><span class="rt">'+s.tip+'</span></span></div>';
+    });
+    document.getElementById("rules").innerHTML = html;
+  }
+
+  function renderAll(){
+    picker.value = isoLocal(selected);
+    renderHero();
+    renderWeek();
+  }
+
+  picker.addEventListener("change", function(){
+    if(!picker.value) return;
+    var p = picker.value.split("-");
+    selected = mkDate(+p[0], +p[1]-1, +p[2]);
+    renderAll();
+  });
+  document.getElementById("todayBtn").addEventListener("click", function(){
+    selected = today();
+    renderAll();
+  });
+
+  renderRules();
+  renderAll();
+})();
+</script>
+</body>
+</html>
