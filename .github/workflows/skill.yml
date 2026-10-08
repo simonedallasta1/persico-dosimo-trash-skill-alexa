@@ -12,7 +12,12 @@ on:
           - valida
           - beta
           - pubblica
+          - prova
         default: aggiorna
+      frase:
+        description: "Solo per 'prova': frasi da simulare separate da | (vuoto = prove standard)"
+        required: false
+        default: ""
       tester:
         description: "Solo per 'beta': lascia vuoto per usare il secret BETA_TESTERS"
         required: false
@@ -63,6 +68,7 @@ jobs:
       - name: Esegui
         env:
           AZIONE: ${{ github.event_name == 'push' && 'aggiorna' || inputs.azione }}
+          FRASE: ${{ inputs.frase }}
           TESTER_INPUT: ${{ inputs.tester }}
           TESTER_SECRET: ${{ secrets.BETA_TESTERS }}
         run: |
@@ -80,5 +86,6 @@ jobs:
               if [ -z "$TESTER" ]; then echo "::error::Per 'beta' crea il secret BETA_TESTERS con le email dei tester."; exit 1; fi
               ./scripts/beta.sh "$TESTER" ;;
             pubblica) ./scripts/pubblica.sh ;;
+            prova)    ./scripts/prova.sh "$FRASE" ;;
             *) echo "::error::Azione sconosciuta: $AZIONE"; exit 1 ;;
           esac
