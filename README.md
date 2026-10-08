@@ -50,7 +50,7 @@ GitHub (app o sito) → **Actions** → **Skill Alexa** → **Run workflow** →
 | `aggiorna` | Carica codice, modello vocale, descrizioni e icone |
 | `stato` | Stato della build |
 | `valida` | Validazione Amazon |
-| `beta` | Valida, crea e avvia il beta test con le email in **tester** |
+| `beta` | Valida, crea e avvia il beta test con le email del secret **BETA_TESTERS** |
 | `pubblica` | Valida e invia in certificazione per lo store |
 
 Ogni modifica a `lambda/` o `skill-package/` sul branch `main` esegue

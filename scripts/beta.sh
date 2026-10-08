@@ -13,7 +13,7 @@ FEEDBACK="${EMAILS%%,*}"
 info "Creo il beta test (se esiste gia' proseguo)"
 smapi create-beta-test -s "$SID" --feedback-email "$FEEDBACK" || true
 
-info "Aggiungo i tester: $EMAILS"
+info "Aggiungo $(echo "$EMAILS" | tr "," "\n" | wc -l | tr -d " ") tester"
 smapi add-testers-to-beta-test -s "$SID" --testers-emails "$EMAILS"
 
 info "Avvio il beta test"

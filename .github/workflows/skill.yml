@@ -14,7 +14,7 @@ on:
           - pubblica
         default: aggiorna
       tester:
-        description: "Solo per 'beta': email Amazon dei tester (separate da virgola)"
+        description: "Solo per 'beta': lascia vuoto per usare il secret BETA_TESTERS"
         required: false
         default: ""
   push:
@@ -63,17 +63,21 @@ jobs:
       - name: Esegui
         env:
           AZIONE: ${{ github.event_name == 'push' && 'aggiorna' || inputs.azione }}
-          TESTER: ${{ inputs.tester }}
+          TESTER_INPUT: ${{ inputs.tester }}
+          TESTER_SECRET: ${{ secrets.BETA_TESTERS }}
         run: |
           git config --global user.name  "github-actions"
           git config --global user.email "github-actions@users.noreply.github.com"
+          TESTER="${TESTER_INPUT:-$TESTER_SECRET}"
+          # le email non devono mai comparire nei log (repository pubblico)
+          for e in $(echo "$TESTER" | tr ',; ' '\n\n\n'); do [ -n "$e" ] && echo "::add-mask::$e"; done
           echo "Azione: $AZIONE"
           case "$AZIONE" in
             aggiorna) ./scripts/deploy.sh ;;
             stato)    ./scripts/stato.sh ;;
             valida)   ./scripts/valida.sh ;;
             beta)
-              if [ -z "$TESTER" ]; then echo "::error::Per 'beta' indica le email dei tester."; exit 1; fi
+              if [ -z "$TESTER" ]; then echo "::error::Per 'beta' crea il secret BETA_TESTERS con le email dei tester."; exit 1; fi
               ./scripts/beta.sh "$TESTER" ;;
             pubblica) ./scripts/pubblica.sh ;;
             *) echo "::error::Azione sconosciuta: $AZIONE"; exit 1 ;;
