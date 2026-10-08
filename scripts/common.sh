@@ -5,7 +5,11 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ASK_PROFILE="${ASK_PROFILE:-default}"
 
-die()  { echo "ERRORE: $*" >&2; exit 1; }
+die()  {
+  echo "ERRORE: $*" >&2
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::error::$*"; fi
+  exit 1
+}
 info() { echo "==> $*"; }
 need() { command -v "$1" >/dev/null 2>&1 || die "manca '$1'. $2"; }
 
