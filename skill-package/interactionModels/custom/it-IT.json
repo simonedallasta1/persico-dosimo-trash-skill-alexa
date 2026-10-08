@@ -1,0 +1,88 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "raccolta persico dosimo",
+      "intents": [
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.FallbackIntent", "samples": [] },
+        { "name": "AMAZON.NavigateHomeIntent", "samples": [] },
+        {
+          "name": "CosaStaseraIntent",
+          "slots": [],
+          "samples": [
+            "cosa devo mettere fuori stasera",
+            "cosa metto fuori stasera",
+            "cosa devo esporre stasera",
+            "cosa si butta stasera",
+            "che rifiuti metto fuori stasera",
+            "cosa tocca stasera",
+            "cosa metto fuori",
+            "cosa devo buttare stasera",
+            "che cosa espongo stasera"
+          ]
+        },
+        {
+          "name": "CosaDomaniIntent",
+          "slots": [],
+          "samples": [
+            "cosa devo mettere fuori domani sera",
+            "cosa metto fuori domani sera",
+            "cosa metto fuori domani",
+            "cosa tocca domani sera",
+            "cosa si butta domani sera",
+            "che rifiuti metto fuori domani"
+          ]
+        },
+        {
+          "name": "CosaDataIntent",
+          "slots": [ { "name": "data", "type": "AMAZON.DATE" } ],
+          "samples": [
+            "cosa devo mettere fuori {data}",
+            "cosa metto fuori la sera di {data}",
+            "cosa metto fuori {data}",
+            "cosa devo esporre {data}",
+            "cosa tocca la sera di {data}"
+          ]
+        },
+        {
+          "name": "ProssimiGiorniIntent",
+          "slots": [],
+          "samples": [
+            "cosa passa questa settimana",
+            "dimmi i prossimi giorni",
+            "quali sono le prossime raccolte",
+            "cosa si raccoglie nei prossimi giorni",
+            "prossime raccolte"
+          ]
+        },
+        {
+          "name": "ImpostaPromemoriaIntent",
+          "slots": [ { "name": "ora", "type": "AMAZON.TIME" } ],
+          "samples": [
+            "ricordamelo ogni giorno alle {ora}",
+            "ricordami ogni sera alle {ora}",
+            "imposta un promemoria alle {ora}",
+            "imposta il promemoria giornaliero alle {ora}",
+            "avvisami ogni giorno alle {ora}",
+            "promemoria ogni giorno alle {ora}",
+            "ricordami la raccolta alle {ora}"
+          ]
+        },
+        {
+          "name": "DisattivaPromemoriaIntent",
+          "slots": [],
+          "samples": [
+            "disattiva i promemoria",
+            "togli il promemoria giornaliero",
+            "non ricordarmelo più",
+            "cancella i promemoria",
+            "ferma i promemoria"
+          ]
+        }
+      ],
+      "types": []
+    }
+  }
+}

@@ -1,0 +1,80 @@
+name: Skill Alexa
+
+on:
+  workflow_dispatch:
+    inputs:
+      azione:
+        description: "Cosa fare"
+        type: choice
+        options:
+          - aggiorna
+          - stato
+          - valida
+          - beta
+          - pubblica
+        default: aggiorna
+      tester:
+        description: "Solo per 'beta': email Amazon dei tester (separate da virgola)"
+        required: false
+        default: ""
+  push:
+    branches: [main]
+    paths:
+      - "lambda/**"
+      - "skill-package/**"
+
+concurrency:
+  group: skill-alexa
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  esegui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Credenziali Amazon
+        env:
+          ASK_CLI_CONFIG: ${{ secrets.ASK_CLI_CONFIG }}
+        run: |
+          if [ -z "$ASK_CLI_CONFIG" ]; then
+            echo "::error::Manca il secret ASK_CLI_CONFIG. Esegui una volta ./scripts/accesso.sh nel Codespace (vedi README)."
+            exit 1
+          fi
+          if [ ! -s skill-id ]; then
+            echo "::error::File skill-id vuoto. Esegui una volta ./scripts/accesso.sh nel Codespace (vedi README)."
+            exit 1
+          fi
+          mkdir -p ~/.ask
+          printf '%s' "$ASK_CLI_CONFIG" > ~/.ask/cli_config
+          chmod 600 ~/.ask/cli_config
+
+      - name: Installa ASK CLI
+        run: npm install -g ask-cli@2
+
+      - name: Esegui
+        env:
+          AZIONE: ${{ github.event_name == 'push' && 'aggiorna' || inputs.azione }}
+          TESTER: ${{ inputs.tester }}
+        run: |
+          git config --global user.name  "github-actions"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          echo "Azione: $AZIONE"
+          case "$AZIONE" in
+            aggiorna) ./scripts/deploy.sh ;;
+            stato)    ./scripts/stato.sh ;;
+            valida)   ./scripts/valida.sh ;;
+            beta)
+              if [ -z "$TESTER" ]; then echo "::error::Per 'beta' indica le email dei tester."; exit 1; fi
+              ./scripts/beta.sh "$TESTER" ;;
+            pubblica) ./scripts/pubblica.sh ;;
+            *) echo "::error::Azione sconosciuta: $AZIONE"; exit 1 ;;
+          esac
