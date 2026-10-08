@@ -94,10 +94,12 @@ skill-id                   ID della skill (non segreto)
 ```
 
 ## Manutenzione
-- Alternanza carta/vetro: `lambda/index.js` → `tuesdayExtra`
-  (ancora: martedi' 16/06/2026 = vetro/lattine).
-- Verde in inverno: da dicembre a marzo la skill avvisa che e' diradato.
-- Festivita' con raccolta posticipata: non gestite, vale il calendario cartaceo.
+- Calendario: `lambda/index.js` → `CALENDARIO`, con le date ufficiali da febbraio
+  2026 a gennaio 2027 (verde e festivita' comprese). Con il nuovo calendario
+  Casalasca si sostituisce questa tabella e si aggiornano `CAL_START`/`CAL_END`.
+- Fuori dal periodo coperto la skill usa lo schema settimanale (senza verde) e
+  avvisa di verificare il nuovo calendario.
+- Tra mezzanotte e le 6 "cosa metto fuori" risponde con la raccolta di oggi.
 - Fuso orario: `Europe/Rome`.
 
 Le credenziali Amazon stanno solo nel secret `ASK_CLI_CONFIG`: per revocarle

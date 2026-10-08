@@ -3,12 +3,12 @@
 /**
  * Skill Alexa "Raccolta Persico Dosimo" — Persico Dosimo (Casalasca Servizi).
  *
- * Regola settimanale (espone la sera prima):
- *   - Martedì raccolta:  Umido + Plastica + (Carta o Vetro/Lattine, alternati ogni martedì)
- *   - Venerdì raccolta:  Umido + Secco
- *   - Lunedì raccolta:   Verde (settimanale in primavera/estate, ridotto in inverno)
+ * Usa le date esatte del calendario ufficiale 2026/2027 (febbraio 2026 - gennaio 2027),
+ * compresi verde e festivita'. Fuori da quel periodo applica lo schema settimanale
+ * (martedi' umido+plastica+carta/vetro alternati, venerdi' umido+secco) e avvisa
+ * di verificare il nuovo calendario.
  *
- * Ancora alternanza Carta/Vetro:  martedì 16 giugno 2026 = Vetro/Lattine.
+ * Tra mezzanotte e le 6 la domanda "cosa metto fuori" risponde con cio' che passa OGGI.
  *
  * Promemoria vocali: con il permesso Reminders, la skill crea un promemoria
  * per ogni sera-di-raccolta dei prossimi 14 giorni all'orario scelto, e li
@@ -29,7 +29,7 @@ const STREAMS = {
   umido:    { say: 'umido',           reminder: 'L\'umido va nei sacchetti biodegradabili.' },
   plastica: { say: 'plastica',        reminder: 'La plastica in sacchi legati, sfusa, niente sacchi neri.' },
   carta:    { say: 'carta',           reminder: 'La carta in scatole o sacchetti di carta, non di plastica.' },
-  vetro:    { say: 'vetro e lattine', reminder: 'Vetro e lattine negli appositi contenitori.' },
+  vetro:    { say: 'vetro con le lattine', reminder: 'Vetro e lattine negli appositi contenitori.' },
   secco:    { say: 'secco',           reminder: 'Il secco solo in sacchi trasparenti, i sacchi neri non vengono ritirati.' },
   verde:    { say: 'verde',           reminder: 'Il verde in sacchi a perdere aperti, le ramaglie in fascine.' }
 };
@@ -38,31 +38,180 @@ const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','
 const GIORNI = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
 
 // ---------- logica calendario ----------
+// Calendario ufficiale: giorno di RACCOLTA -> rifiuti ritirati quel giorno.
+const U = 'umido', P = 'plastica', C = 'carta', V = 'vetro', S = 'secco', G = 'verde';
+const CAL_START = '2026-02-01';
+const CAL_END = '2027-01-31';
+const CALENDARIO = {
+  '2026-02-03': [U,C,P],
+  '2026-02-06': [U,S],
+  '2026-02-10': [U,V,P],
+  '2026-02-13': [U,S],
+  '2026-02-16': [G],
+  '2026-02-17': [U,C,P],
+  '2026-02-20': [U,S],
+  '2026-02-24': [U,V,P],
+  '2026-02-27': [U,S],
+  '2026-03-03': [U,C,P],
+  '2026-03-06': [U,S],
+  '2026-03-10': [U,V,P],
+  '2026-03-13': [U,S],
+  '2026-03-16': [G],
+  '2026-03-17': [U,C,P],
+  '2026-03-20': [U,S],
+  '2026-03-24': [U,V,P],
+  '2026-03-27': [U,S],
+  '2026-03-30': [G],
+  '2026-03-31': [U,C,P],
+  '2026-04-03': [U,S],
+  '2026-04-07': [U,V,P],
+  '2026-04-10': [U,S],
+  '2026-04-13': [G],
+  '2026-04-14': [U,C,P],
+  '2026-04-17': [U,S],
+  '2026-04-20': [G],
+  '2026-04-21': [U,V,P],
+  '2026-04-24': [U,S],
+  '2026-04-27': [G],
+  '2026-04-28': [U,C,P],
+  '2026-05-01': [S],
+  '2026-05-04': [G],
+  '2026-05-05': [U,V,P],
+  '2026-05-08': [U,S],
+  '2026-05-11': [G],
+  '2026-05-12': [U,C,P],
+  '2026-05-15': [U,S],
+  '2026-05-18': [G],
+  '2026-05-19': [U,V,P],
+  '2026-05-22': [U,S],
+  '2026-05-25': [G],
+  '2026-05-26': [U,C,P],
+  '2026-05-29': [U,S],
+  '2026-06-01': [G],
+  '2026-06-02': [V,P],
+  '2026-06-05': [U,S],
+  '2026-06-08': [G],
+  '2026-06-09': [U,C,P],
+  '2026-06-12': [U,S],
+  '2026-06-15': [G],
+  '2026-06-16': [U,V,P],
+  '2026-06-19': [U,S],
+  '2026-06-22': [G],
+  '2026-06-23': [U,C,P],
+  '2026-06-26': [U,S],
+  '2026-06-30': [U,V,P],
+  '2026-07-03': [U,S],
+  '2026-07-06': [G],
+  '2026-07-07': [U,C,P],
+  '2026-07-10': [U,S],
+  '2026-07-13': [G],
+  '2026-07-14': [U,V,P],
+  '2026-07-17': [U,S],
+  '2026-07-21': [U,C,P],
+  '2026-07-24': [U,S],
+  '2026-07-27': [G],
+  '2026-07-28': [U,V,P],
+  '2026-07-31': [U,S],
+  '2026-08-03': [G],
+  '2026-08-04': [U,C,P],
+  '2026-08-07': [U,S],
+  '2026-08-10': [G],
+  '2026-08-11': [U,V,P],
+  '2026-08-14': [U,S],
+  '2026-08-18': [U,C,P],
+  '2026-08-21': [U,S],
+  '2026-08-24': [G],
+  '2026-08-25': [U,V,P],
+  '2026-08-28': [U,S],
+  '2026-09-01': [U,C,P],
+  '2026-09-04': [U,S],
+  '2026-09-07': [G],
+  '2026-09-08': [U,V,P],
+  '2026-09-11': [U,S],
+  '2026-09-14': [G],
+  '2026-09-15': [U,C,P],
+  '2026-09-18': [U,S],
+  '2026-09-22': [U,V,P],
+  '2026-09-25': [U,S],
+  '2026-09-28': [G],
+  '2026-09-29': [U,C,P],
+  '2026-10-02': [U,S],
+  '2026-10-05': [G],
+  '2026-10-06': [U,V,P],
+  '2026-10-09': [U,S],
+  '2026-10-13': [U,C,P],
+  '2026-10-16': [U,S],
+  '2026-10-19': [G],
+  '2026-10-20': [U,V,P],
+  '2026-10-23': [U,S],
+  '2026-10-26': [G],
+  '2026-10-27': [U,C,P],
+  '2026-10-30': [U,S],
+  '2026-11-02': [G],
+  '2026-11-03': [U,V,P],
+  '2026-11-06': [U,S],
+  '2026-11-10': [U,C,P],
+  '2026-11-13': [U,S],
+  '2026-11-16': [G],
+  '2026-11-17': [U,V,P],
+  '2026-11-20': [U,S],
+  '2026-11-24': [U,C,P],
+  '2026-11-27': [U,S],
+  '2026-11-30': [G],
+  '2026-12-01': [U,V,P],
+  '2026-12-04': [U,S],
+  '2026-12-07': [G],
+  '2026-12-08': [C,P],
+  '2026-12-11': [U,S],
+  '2026-12-15': [U,V,P],
+  '2026-12-18': [U,S],
+  '2026-12-21': [G],
+  '2026-12-22': [U,C,P],
+  '2026-12-26': [S],
+  '2026-12-29': [U,V,P],
+  '2027-01-02': [S],
+  '2027-01-05': [U,C,P],
+  '2027-01-08': [U,S],
+  '2027-01-12': [U,V,P],
+  '2027-01-15': [U,S],
+  '2027-01-19': [U,C,P],
+  '2027-01-22': [U,S],
+  '2027-01-26': [U,V,P],
+  '2027-01-29': [U,S],
+};
+
+function pad(n) { return String(n).padStart(2, '0'); }
+function dateKey(y, m, d) { return `${y}-${pad(m + 1)}-${pad(d)}`; }
+
+// Schema settimanale di riserva (fuori dal calendario ufficiale; senza verde).
 function tuesdayExtra(y, m, d) {
   const anchor = Date.UTC(2026, 5, 16, 12); // 16 giugno 2026 = Vetro
   const t = Date.UTC(y, m, d, 12);
   const weeks = Math.round((t - anchor) / (7 * 86400000));
   return (((weeks % 2) + 2) % 2 === 0) ? 'vetro' : 'carta';
 }
+function weeklyRule(y, m, d) {
+  const wd = new Date(Date.UTC(y, m, d, 12)).getUTCDay();
+  if (wd === 2) return [U, P, tuesdayExtra(y, m, d)];
+  if (wd === 5) return [U, S];
+  return [];
+}
 
-function exposeForEvening(y, m, d) {
-  const tomorrow = new Date(Date.UTC(y, m, d, 12) + 86400000);
-  const ny = tomorrow.getUTCFullYear();
-  const nm = tomorrow.getUTCMonth();
-  const nd = tomorrow.getUTCDate();
-  const wd = tomorrow.getUTCDay();
-
-  let streams = [];
-  let winterVerde = false;
-  if (wd === 2) {
-    streams = ['umido', 'plastica', tuesdayExtra(ny, nm, nd)];
-  } else if (wd === 5) {
-    streams = ['umido', 'secco'];
-  } else if (wd === 1) {
-    streams = ['verde'];
-    winterVerde = [11, 0, 1, 2].includes(nm);
+// Cosa passa il giorno (y, m, d).
+function collectionOn(y, m, d) {
+  const k = dateKey(y, m, d);
+  if (k >= CAL_START && k <= CAL_END) {
+    return { streams: CALENDARIO[k] || [], fromCalendar: true };
   }
-  return { streams, winterVerde, next: { y: ny, m: nm, d: nd, wd } };
+  return { streams: weeklyRule(y, m, d), fromCalendar: false };
+}
+
+// Cosa esporre la sera del giorno (y, m, d): la raccolta del giorno dopo.
+function exposeForEvening(y, m, d) {
+  const t = new Date(Date.UTC(y, m, d, 12) + 86400000);
+  const next = { y: t.getUTCFullYear(), m: t.getUTCMonth(), d: t.getUTCDate(), wd: t.getUTCDay() };
+  const c = collectionOn(next.y, next.m, next.d);
+  return { streams: c.streams, fromCalendar: c.fromCalendar, next };
 }
 
 // ---------- helper data/ora (Europe/Rome) ----------
@@ -95,24 +244,53 @@ function fmtDay(p) {
   return `${GIORNI[new Date(Date.UTC(p.y, p.m, p.d, 12)).getUTCDay()]} ${p.d} ${MESI[p.m]}`;
 }
 
+const NOTTE_FINO_A = 6 * 60; // fino alle 6:00 si parla della raccolta di oggi
+function isNight(handlerInput) { return romeNowMinutes(handlerInput) < NOTTE_FINO_A; }
+
+function oneReminder(streams) {
+  if (streams.includes('secco')) return STREAMS.secco.reminder;
+  if (streams.includes('verde')) return STREAMS.verde.reminder;
+  if (streams.includes('plastica')) return STREAMS.plastica.reminder;
+  return '';
+}
+const FUORI_CALENDARIO = ' Il calendario che conosco arriva fino a gennaio 2027: verifica quello nuovo di Casalasca Servizi.';
+
 function speakEvening(p, label) {
   const res = exposeForEvening(p.y, p.m, p.d);
+  let s;
   if (res.streams.length === 0) {
-    return `${label} non devi mettere fuori niente: domani non c'è raccolta.`;
+    s = `${label} non devi mettere fuori niente: ${fmtDay(res.next)} non c'è raccolta.`;
+  } else {
+    s = `${label} devi mettere fuori ${joinIt(res.streams.map(k => STREAMS[k].say))}.`;
+    const rem = oneReminder(res.streams);
+    if (rem) s += ' ' + rem;
   }
-  const names = res.streams.map(k => STREAMS[k].say);
-  let s = `${label} devi mettere fuori ${joinIt(names)}.`;
-  let rem = '';
-  if (res.streams.includes('secco')) rem = STREAMS.secco.reminder;
-  else if (res.streams.includes('verde')) rem = STREAMS.verde.reminder;
-  else if (res.streams.includes('plastica')) rem = STREAMS.plastica.reminder;
-  if (rem) s += ' ' + rem;
-  if (res.winterVerde) s += ' Attenzione: in inverno il verde passa più di rado, controlla il calendario.';
+  if (!res.fromCalendar) s += FUORI_CALENDARIO;
   return s;
 }
 
+// Raccolta di oggi (usata di notte).
+function speakToday(p) {
+  const c = collectionOn(p.y, p.m, p.d);
+  let s;
+  if (c.streams.length === 0) {
+    s = `Oggi, ${fmtDay(p)}, non passa nessuna raccolta.`;
+  } else {
+    s = `Oggi, ${fmtDay(p)}, passa ${joinIt(c.streams.map(k => STREAMS[k].say))}. Se non l'hai ancora fatto, mettili fuori adesso.`;
+    const rem = oneReminder(c.streams);
+    if (rem) s += ' ' + rem;
+  }
+  if (!c.fromCalendar) s += FUORI_CALENDARIO;
+  return s;
+}
+
+// Risposta alla domanda "cosa metto fuori" adesso: di notte la raccolta di oggi, altrimenti stasera.
+function speakNow(handlerInput) {
+  const today = romeParts(handlerInput);
+  return isNight(handlerInput) ? speakToday(today) : speakEvening(today, 'Stasera');
+}
+
 // ---------- promemoria ----------
-function pad(n) { return String(n).padStart(2, '0'); }
 
 function buildReminderRequest(p, timeHHMM, text) {
   const scheduledTime = `${p.y}-${pad(p.m + 1)}-${pad(p.d)}T${timeHHMM}:00`;
@@ -184,7 +362,7 @@ async function savePrefs(handlerInput, prefs) {
 const LaunchRequestHandler = {
   canHandle(h) { return Alexa.getRequestType(h.requestEnvelope) === 'LaunchRequest'; },
   async handle(h) {
-    const speak = speakEvening(romeParts(h), 'Stasera');
+    const speak = speakNow(h);
     // rigenera i promemoria, se attivi
     try {
       const prefs = await loadPrefs(h);
@@ -206,7 +384,7 @@ const CosaStaseraHandler = {
       && Alexa.getIntentName(h.requestEnvelope) === 'CosaStaseraIntent';
   },
   handle(h) {
-    const speak = speakEvening(romeParts(h), 'Stasera');
+    const speak = speakNow(h);
     return h.responseBuilder.speak(speak).withSimpleCard('Raccolta Persico Dosimo', speak).getResponse();
   }
 };
@@ -217,7 +395,11 @@ const CosaDomaniHandler = {
       && Alexa.getIntentName(h.requestEnvelope) === 'CosaDomaniIntent';
   },
   handle(h) {
-    const speak = speakEvening(addDays(romeParts(h), 1), 'Domani sera');
+    // di notte "domani sera" e' la sera del giorno appena iniziato
+    const today = romeParts(h);
+    const speak = isNight(h)
+      ? speakEvening(today, `Questa sera, ${fmtDay(today)},`)
+      : speakEvening(addDays(today, 1), 'Domani sera');
     return h.responseBuilder.speak(speak).withSimpleCard('Raccolta Persico Dosimo', speak).getResponse();
   }
 };
@@ -248,6 +430,10 @@ const ProssimiGiorniHandler = {
   handle(h) {
     const start = romeParts(h);
     const parts = [];
+    if (isNight(h)) {
+      const c = collectionOn(start.y, start.m, start.d);
+      if (c.streams.length > 0) parts.push(`oggi passa ${joinIt(c.streams.map(k => STREAMS[k].say))}`);
+    }
     for (let i = 0; i < 7; i++) {
       const p = addDays(start, i);
       const res = exposeForEvening(p.y, p.m, p.d);
