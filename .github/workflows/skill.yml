@@ -13,6 +13,7 @@ on:
           - beta
           - pubblica
           - prova
+          - certificazione
         default: aggiorna
       frase:
         description: "Solo per 'prova': frasi da simulare separate da | (vuoto = prove standard)"
@@ -87,5 +88,6 @@ jobs:
               ./scripts/beta.sh "$TESTER" ;;
             pubblica) ./scripts/pubblica.sh ;;
             prova)    ./scripts/prova.sh "$FRASE" ;;
+            certificazione) ./scripts/certificazione.sh ;;
             *) echo "::error::Azione sconosciuta: $AZIONE"; exit 1 ;;
           esac
