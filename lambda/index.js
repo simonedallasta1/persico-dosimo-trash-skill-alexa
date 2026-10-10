@@ -449,6 +449,72 @@ const ProssimiGiorniHandler = {
   }
 };
 
+// "Quando passa il secco?" -> prossimo giorno di raccolta di quel rifiuto.
+const RIFIUTO_IDS = ['umido', 'plastica', 'carta', 'vetro', 'secco', 'verde'];
+const ARTICOLO = { umido: "l'umido", plastica: 'la plastica', carta: 'la carta', vetro: 'il vetro con le lattine', secco: 'il secco', verde: 'il verde' };
+const PRONOME = { umido: 'mettilo', plastica: 'mettila', carta: 'mettila', vetro: 'mettili', secco: 'mettilo', verde: 'mettilo' };
+
+function rifiutoFromSlot(handlerInput) {
+  const slot = Alexa.getSlot(handlerInput.requestEnvelope, 'rifiuto');
+  if (!slot) return null;
+  try {
+    const rpa = slot.resolutions.resolutionsPerAuthority.find(r => r.status.code === 'ER_SUCCESS_MATCH');
+    if (rpa) return rpa.values[0].value.id;
+  } catch (e) { /* nessuna risoluzione */ }
+  const v = (slot.value || '').toLowerCase();
+  return RIFIUTO_IDS.find(id => v.includes(id)) || null;
+}
+
+// Prossime raccolte di `stream`: di notte conta anche oggi, altrimenti da domani.
+function nextCollections(handlerInput, stream, max) {
+  const today = romeParts(handlerInput);
+  const out = [];
+  for (let i = isNight(handlerInput) ? 0 : 1; i <= 90 && out.length < max; i++) {
+    const p = addDays(today, i);
+    const c = collectionOn(p.y, p.m, p.d);
+    if (c.streams.includes(stream)) out.push({ p, i, fromCalendar: c.fromCalendar });
+  }
+  return out;
+}
+
+function speakQuando(handlerInput, stream) {
+  const list = nextCollections(handlerInput, stream, 2);
+  const nome = ARTICOLO[stream];
+  if (list.length === 0) {
+    return stream === 'verde'
+      ? 'Non conosco ancora le prossime date del verde: il calendario che ho arriva a gennaio 2027. Verifica quello nuovo di Casalasca Servizi.'
+      : `Non trovo raccolte per ${nome} nei prossimi tre mesi. Verifica il calendario di Casalasca Servizi.`;
+  }
+  const first = list[0];
+  const Nome = nome.charAt(0).toUpperCase() + nome.slice(1);
+  let s;
+  if (first.i === 0) {
+    s = `${Nome} passa oggi, ${fmtDay(first.p)}: se non l'hai già fatto, ${PRONOME[stream]} fuori adesso.`;
+  } else {
+    const sera = first.i === 1 ? 'stasera' : `la sera di ${fmtDay(addDays(first.p, -1))}`;
+    s = `${Nome} passa ${fmtDay(first.p)}: ${PRONOME[stream]} fuori ${sera}.`;
+  }
+  if (list[1]) s += ` La raccolta successiva è ${fmtDay(list[1].p)}.`;
+  if (!first.fromCalendar) s += FUORI_CALENDARIO;
+  return s;
+}
+
+const QuandoPassaHandler = {
+  canHandle(h) {
+    return Alexa.getRequestType(h.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(h.requestEnvelope) === 'QuandoPassaIntent';
+  },
+  handle(h) {
+    const stream = rifiutoFromSlot(h);
+    if (!stream) {
+      const ask = 'Quale rifiuto? Puoi chiedermi di umido, plastica, carta, vetro, secco o verde.';
+      return h.responseBuilder.speak(ask).reprompt(ask).getResponse();
+    }
+    const speak = speakQuando(h, stream);
+    return h.responseBuilder.speak(speak).withSimpleCard('Raccolta Persico Dosimo', speak).getResponse();
+  }
+};
+
 // Imposta il promemoria giornaliero all'orario indicato.
 const ImpostaPromemoriaHandler = {
   canHandle(h) {
@@ -520,7 +586,7 @@ const HelpHandler = {
       && Alexa.getIntentName(h.requestEnvelope) === 'AMAZON.HelpIntent';
   },
   handle(h) {
-    const speak = 'Posso dirti cosa esporre la sera prima della raccolta. Prova: cosa metto fuori stasera. Oppure: ricordamelo ogni giorno alle 19.';
+    const speak = 'Posso dirti cosa esporre la sera prima della raccolta, o quando passa un rifiuto. Prova: cosa metto fuori stasera. Oppure: quando passa il secco.';
     return h.responseBuilder.speak(speak).reprompt(speak).getResponse();
   }
 };
@@ -539,7 +605,7 @@ const FallbackHandler = {
       && Alexa.getIntentName(h.requestEnvelope) === 'AMAZON.FallbackIntent';
   },
   handle(h) {
-    const speak = 'Non ho capito. Puoi chiedermi cosa mettere fuori stasera, o dire: ricordamelo ogni giorno alle 19.';
+    const speak = 'Non ho capito. Puoi chiedermi cosa mettere fuori stasera, o quando passa il secco.';
     return h.responseBuilder.speak(speak).reprompt(speak).getResponse();
   }
 };
@@ -567,6 +633,7 @@ let builder = Alexa.SkillBuilders.custom()
     CosaDomaniHandler,
     CosaDataHandler,
     ProssimiGiorniHandler,
+    QuandoPassaHandler,
     ImpostaPromemoriaHandler,
     DisattivaPromemoriaHandler,
     HelpHandler,

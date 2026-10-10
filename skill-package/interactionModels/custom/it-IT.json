@@ -3,11 +3,26 @@
     "languageModel": {
       "invocationName": "rifiuti persico",
       "intents": [
-        { "name": "AMAZON.CancelIntent", "samples": [] },
-        { "name": "AMAZON.HelpIntent", "samples": [] },
-        { "name": "AMAZON.StopIntent", "samples": [] },
-        { "name": "AMAZON.FallbackIntent", "samples": [] },
-        { "name": "AMAZON.NavigateHomeIntent", "samples": [] },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
         {
           "name": "CosaStaseraIntent",
           "slots": [],
@@ -37,7 +52,12 @@
         },
         {
           "name": "CosaDataIntent",
-          "slots": [ { "name": "data", "type": "AMAZON.DATE" } ],
+          "slots": [
+            {
+              "name": "data",
+              "type": "AMAZON.DATE"
+            }
+          ],
           "samples": [
             "cosa devo mettere fuori {data}",
             "cosa metto fuori la sera di {data}",
@@ -59,7 +79,12 @@
         },
         {
           "name": "ImpostaPromemoriaIntent",
-          "slots": [ { "name": "ora", "type": "AMAZON.TIME" } ],
+          "slots": [
+            {
+              "name": "ora",
+              "type": "AMAZON.TIME"
+            }
+          ],
           "samples": [
             "ricordamelo ogni giorno alle {ora}",
             "ricordami ogni sera alle {ora}",
@@ -80,9 +105,145 @@
             "cancella i promemoria",
             "ferma i promemoria"
           ]
+        },
+        {
+          "name": "QuandoPassaIntent",
+          "slots": [
+            {
+              "name": "rifiuto",
+              "type": "RIFIUTO"
+            }
+          ],
+          "samples": [
+            "quando passa {rifiuto}",
+            "quando passa il {rifiuto}",
+            "quando passa la {rifiuto}",
+            "quando passa l' {rifiuto}",
+            "quando butto {rifiuto}",
+            "quando butto il {rifiuto}",
+            "quando butto la {rifiuto}",
+            "quando butto l' {rifiuto}",
+            "quando metto fuori {rifiuto}",
+            "quando metto fuori il {rifiuto}",
+            "quando metto fuori la {rifiuto}",
+            "quando devo mettere fuori {rifiuto}",
+            "quando devo mettere fuori il {rifiuto}",
+            "quando devo mettere fuori la {rifiuto}",
+            "quando devo buttare {rifiuto}",
+            "quando devo buttare il {rifiuto}",
+            "quando devo buttare la {rifiuto}",
+            "quando si butta {rifiuto}",
+            "quando si butta il {rifiuto}",
+            "quando si butta la {rifiuto}",
+            "quando raccolgono {rifiuto}",
+            "quando raccolgono il {rifiuto}",
+            "quando raccolgono la {rifiuto}",
+            "quando ritirano {rifiuto}",
+            "quando ritirano il {rifiuto}",
+            "quando ritirano la {rifiuto}",
+            "quando tocca {rifiuto}",
+            "quando tocca al {rifiuto}",
+            "quando tocca alla {rifiuto}",
+            "che giorno passa {rifiuto}",
+            "che giorno passa il {rifiuto}",
+            "che giorno passa la {rifiuto}",
+            "quando è il prossimo {rifiuto}",
+            "quando c'è {rifiuto}",
+            "quando c'è il {rifiuto}",
+            "quando c'è la {rifiuto}",
+            "prossimo ritiro {rifiuto}",
+            "prossima raccolta {rifiuto}",
+            "prossima raccolta del {rifiuto}",
+            "prossima raccolta della {rifiuto}"
+          ]
         }
       ],
-      "types": []
+      "types": [
+        {
+          "name": "RIFIUTO",
+          "values": [
+            {
+              "id": "secco",
+              "name": {
+                "value": "secco",
+                "synonyms": [
+                  "indifferenziata",
+                  "indifferenziato",
+                  "sacco trasparente",
+                  "sacchi trasparenti",
+                  "residuo",
+                  "pattume",
+                  "spazzatura"
+                ]
+              }
+            },
+            {
+              "id": "umido",
+              "name": {
+                "value": "umido",
+                "synonyms": [
+                  "organico",
+                  "rifiuti organici",
+                  "avanzi",
+                  "scarti di cucina",
+                  "bidone marrone"
+                ]
+              }
+            },
+            {
+              "id": "plastica",
+              "name": {
+                "value": "plastica",
+                "synonyms": [
+                  "plastiche",
+                  "sacco giallo",
+                  "imballaggi in plastica"
+                ]
+              }
+            },
+            {
+              "id": "carta",
+              "name": {
+                "value": "carta",
+                "synonyms": [
+                  "cartone",
+                  "cartoni",
+                  "carta e cartone",
+                  "giornali"
+                ]
+              }
+            },
+            {
+              "id": "vetro",
+              "name": {
+                "value": "vetro",
+                "synonyms": [
+                  "lattine",
+                  "vetro e lattine",
+                  "bottiglie",
+                  "barattoli",
+                  "alluminio"
+                ]
+              }
+            },
+            {
+              "id": "verde",
+              "name": {
+                "value": "verde",
+                "synonyms": [
+                  "erba",
+                  "sfalci",
+                  "foglie",
+                  "potature",
+                  "ramaglie",
+                  "giardino",
+                  "rifiuti verdi"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 }

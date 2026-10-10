@@ -9,6 +9,7 @@ della raccolta differenziata porta a porta di **Persico Dosimo (CR)**
 
 Frasi: "Alexa, apri rifiuti persico" · "...cosa metto fuori stasera" ·
 "...cosa tocca domani sera" · "...le prossime raccolte" ·
+"...quando passa il secco" ·
 "...ricordamelo ogni giorno alle 19" · "...disattiva i promemoria".
 
 ---
